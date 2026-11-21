@@ -6,18 +6,19 @@
 """
 
 import json, subprocess, sys, time
+import logging as log
 
 def run(*subcommand):
     """Run aws with subcommand and options, return output or raise exception"""
-    cli = ["aws"]
-    cli.extend(subcommand)
-    print("> " + " ".join(cli))
-    cp = subprocess.run(cli, capture_output=True)
+    cmdLine = ["aws"]
+    cmdLine.extend(subcommand)
+    print("> " + " ".join(cmdLine))
+    cp = subprocess.run(cmdLine, capture_output=True)
     try:
         cp.check_returncode()
     except (subprocess.CalledProcessError,) as e:
         # Convenience for caller
-        print(e.stderr.decode('utf-8', 'backslashreplace'), file=sys.stderr)
+        log.error(e.stderr.decode('utf-8', 'backslashreplace'))
         raise
     return cp.stdout.decode('utf-8', 'backslashreplace')
 
@@ -48,7 +49,11 @@ def allowCancel(prompt="Execute in", wait=5):
 
 def confirmCLI():
     """Check that we have CLI"""
-    out = run("--version")
+    try:
+        out = run("--version")
+    except (FileNotFoundError, ) as e:
+        log.error("aws not installed or not in PATH")
+        sys.exit(1)
     print(out.split(' ')[0])
 
 def confirmID():
