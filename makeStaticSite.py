@@ -5,6 +5,7 @@
 """
 
 import json, os, string, sys
+import logging as log
 from os import path
 
 import awsutil as aws
@@ -74,6 +75,8 @@ def uploadContent(source, bucket):
 def makeBucketIntoSite(source, bucket):
     """Configure S3 bucket as static website"""
     dest = "s3://{}/".format(bucket)
+    if not path.exists(path.join(source, "index.html")):
+        raise RuntimeError("No index page in {}".format(source))
     errName = None
     for target in ("error.html", "404.html"):
         if path.exists(path.join(source, target)):
@@ -97,6 +100,9 @@ def main(argv):
     if not (path.exists(sourceDir) and path.isdir(sourceDir)):
             raise RuntimeError("{} is not a directory".format(sourceDir))
 
+    log.basicConfig(format="%(levelname)s %(message)s",
+                    datefmt="%H:%M:%S",
+                    level=log.INFO)
     aws.start()
     makeBucket(bucketName, LocationConstraint=aws.config["region"])
     configBucketAccess(bucketName)
