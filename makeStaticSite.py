@@ -8,7 +8,7 @@ import json, os, string, sys
 import logging as log
 from os import path
 
-import awsutil as aws
+import aws
 
 def makeBucket(name, **config):
     """Use existing, or create if necessary"""

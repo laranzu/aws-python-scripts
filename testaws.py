@@ -2,7 +2,7 @@
 
 # Testing how to run AWS CLI from Python
 
-import awsutil as aws
+import aws
 
 aws.start()
 print(aws.config)
